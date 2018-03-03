@@ -1,94 +1,107 @@
 import bottle
 import os
 import random
-import json
- 
+
+
+
 @bottle.route('/')
 def static():
     return "the server is running"
- 
- 
- 
+
+
 @bottle.route('/static/<path:path>')
 def static(path):
     return bottle.static_file(path, root='static/')
- 
 
-#def end(): 
-#    game id
-#    winner id
-#    turns completed
-   
- 
+
 @bottle.post('/start')
 def start():
     data = bottle.request.json
     game_id = data.get('game_id')
     board_width = data.get('width')
     board_height = data.get('height')
- 
-    head_url = '%s://%s/static/head.png' % (
+
+	#http://www.pngmart.com/image/19182 lion head
+    head_url = '%s://%s/static/head.png ' % (
         bottle.request.urlparts.scheme,
         bottle.request.urlparts.netloc
     )
- 
+
+    # TODO: Do things with data
+
     return {
-        'color': '#C5B358',
-        'secondary_color': '#8D1F09'
+        'color': '#6b33ff',
         'taunt': '{} ({}x{})'.format(game_id, board_width, board_height),
-        'head_url': "fang",
-        'tail_url': "fat-rattle",
-        'name': 'Snakes on a Board'
+        'head_url': head_url
     }
- 
- 
- 
+
+
 @bottle.post('/move')
 def move():
-#choosing a safe move
-#live
-#not wall
-#not other snake
     data = bottle.request.json
- 
-    goalFood = data['food']['data'][0]
- 
-    currPosHeadX = data['you']['body']['data'][0]['x']
-    currPosHeadY = data['you']['body']['data'][0]['y']
- 
+	
+
+    # TODO: Do things with data
+    
     directions = ['up', 'down', 'left', 'right']
-    #direction = random.choice(directions)
-    
-    directionx = ['left', 'right']
-    directiony = ['up', 'down']
-    
-    if(currPosHeadX > board_width or currPosHeadX < 0):
-        direction = random.choice(directiony)
-        
-    if(currPosHeadY > board_height or currPosHeadY < 0):
-        direction = random.choice(directionx)
-        
-    if(goalFood['x'] < currPosHeadX):
-        direction = 'left'
- 
-    if(goalFood['x'] > currPosHeadX):
-        direction = 'right'
- 
-    if(goalFood['y'] < currPosHeadY):
-        direction = 'up'
- 
-    if(goalFood['y'] > currPosHeadY):
-        direction = 'down'
- 
+    #
+	#
+	#
+	#
+	#
+	Matrix = [[0 for x in range(board_width)] for y in range(board_height)]
+	
+	##put food in 2D array
+	food = data["food"]
+	
+	for food in food["data"]:
+		Matrix[food["x"]][food["y"]] = -1
+	
+	##put snakes in 2D array
+	snakes = data["snakes"]
+	
+	for snake in snakes["data"]:
+		print(snake["body"]["id"])
+		for body in snake.body.data:
+			Matrix[body["x"]][body["y"]] = 1
+	
+	##establish where we are on board
+	myX = data["you"]["body"]["data"]["x"]
+	myY = data["you"]["body"]["data"]["y"]
+	
+	Matrix[myX][myY] = 10
+			
+	##set up for logic
+	
+	
+	
+	
+
+
+
+
+	
+	direction = random.choice(directions)
+	
+	
+	
+	
+	direction =
+    #
+	#
+	#
+	#
+	#
+	print direction
     return {
         'move': direction,
-        'taunt': 'Suck a bag of Snakes!'
+        'taunt': 'battlesnake-python!'
     }
- 
- 
- 
+
+
 # Expose WSGI app (so gunicorn can find it)
 application = bottle.default_app()
+
 if __name__ == '__main__':
     bottle.run(
         application,
